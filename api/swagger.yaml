@@ -1,0 +1,25 @@
+# aws-serverless
+swagger: '2.0'
+info:
+  title: AWS Serverless API
+  description: AWS Serverless API 
+  version: "1.0.0"
+host: amazonaws.com
+schemes:
+  - https
+produces:
+  - application/json
+consumes:
+  - application/json
+
+paths:
+ /default/helloWorld:
+    get:
+      summary: get hello world
+      description: This endpoint will return a hello world
+      tags:
+        - helloWorld
+      consumes: 
+      responses:
+        200:
+          description: I guess it worked
