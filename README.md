@@ -1,2 +1,2 @@
 # aws-serverless
-An experiment with aws servless tech
+An experiment with aws serverless tech
