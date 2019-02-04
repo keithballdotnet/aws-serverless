@@ -11,6 +11,9 @@ function echo_g() {
     echo "\n$GREEN$1$PS_CLEAR"
 }
 
+echo_g Running tests...
+go test github.com/keithballdotnet/aws-serverless/functions/helloWorld
+
 echo_g Building...
 GOOS=linux GOARCH=amd64 go build -o bin/main github.com/keithballdotnet/aws-serverless/functions/helloWorld
 
