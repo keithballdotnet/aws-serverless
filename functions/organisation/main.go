@@ -73,8 +73,8 @@ func main() {
 	lambda.Start(Router())
 }
 
-// Router routes restful endpoints to the correct method
-// GET without an ID in the path parameters, calls the List method,
+// Router routes endpoints to the correct method
+// GET without an ID in the QueryString, calls the List method,
 // GET with an ID calls the Get method,
 // POST calls the Store method.
 func Router() func(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
