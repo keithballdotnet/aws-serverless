@@ -36,6 +36,7 @@ func NewDynamoDB(conn *dynamodb.DynamoDB, table string) *DynamoDB {
 
 // List gets a collection of resources
 func (ddb *DynamoDB) List(castTo interface{}) error {
+	fmt.Println("DynamoDB.List()")
 	results, err := ddb.conn.Scan(&dynamodb.ScanInput{
 		TableName: aws.String(ddb.table),
 	})
@@ -50,6 +51,7 @@ func (ddb *DynamoDB) List(castTo interface{}) error {
 
 // Store an item
 func (ddb *DynamoDB) Store(item interface{}) error {
+	fmt.Println("DynamoDB.Store()")
 	av, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
 		return err

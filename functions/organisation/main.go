@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,59 +11,51 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/keithballdotnet/aws-serverless/functions/organisation/model"
 	"github.com/keithballdotnet/aws-serverless/functions/organisation/store"
+	"github.com/keithballdotnet/aws-serverless/pkg/helpers"
 	uuid "github.com/satori/go.uuid"
 )
 
-// Handler is your Lambda function handler
-// It uses Amazon API Gateway request/responses provided by the aws-lambda-go/events package,
-// However you could use other event sources (S3, Kinesis etc), or JSON-decoded primitive types such as 'string'.
-func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+// ListHandler will return a collection of organisations
+func ListHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Printf("ListHandler() RequestID %s\n", request.RequestContext.RequestID)
+	orgs, err := orgStore.List()
+	if err != nil {
+		log.Printf("unable to get organisations: %v\n", err)
+		return helpers.Response(helpers.GetErrorData(err), http.StatusInternalServerError, nil)
+	}
 
-	// stdout and stderr are sent to AWS CloudWatch Logs
-	log.Printf("Processing Lambda request %s\n", request.RequestContext.RequestID)
+	return helpers.Response(orgs, http.StatusOK, nil)
+}
 
+// CreateHandler will handle the creation of a new organisation
+func CreateHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Printf("CreateHandler() RequestID %s\n", request.RequestContext.RequestID)
 	// Add a new org
 	newOrganisation := &model.Organisation{OrganisationID: fmt.Sprintf("orgid:%s", uuid.NewV4().String()), Name: fmt.Sprintf("TS%s", time.Now().Format(time.RFC3339Nano))}
 	err := orgStore.Store(newOrganisation)
 	if err != nil {
 		log.Printf("unable to store organisation: %v", err)
-		return events.APIGatewayProxyResponse{}, err
+		return helpers.Response(helpers.GetErrorData(err), http.StatusInternalServerError, nil)
 	}
+	return helpers.Response(newOrganisation, http.StatusCreated, nil)
+}
 
-	orgs, err := orgStore.List()
-	if err != nil {
-		log.Printf("unable to get organisations: %v\n", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusInternalServerError,
-		}, err
-	}
-
-	for _, org := range orgs {
-		log.Printf("Found org: %s - %s\n", org.OrganisationID, org.Name)
-		//if org.OrganisationID ==
-	}
+// GetHandler will get a specific organisation
+func GetHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Printf("GetHandler() RequestID %s\n", request.RequestContext.RequestID)
 
 	id := request.QueryStringParameters["id"]
 	if id == "" {
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusBadRequest,
-			Body:       "you must give an id",
-		}, nil
+		return helpers.Response(helpers.GetErrorData(errors.New("no id passed")), http.StatusBadRequest, nil)
 	}
 
 	organisation, err := orgStore.Get(id)
 	if err != nil {
 		log.Printf("unable to get organisation: %s : %v\n", id, err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusNotFound,
-			Body:       fmt.Sprintf("'%s' not found", id),
-		}, nil
+		return helpers.Response(helpers.GetErrorData(fmt.Errorf("'%s' not found", id)), http.StatusNotFound, nil)
 	}
 
-	return events.APIGatewayProxyResponse{
-		Body:       "Got " + organisation.Name,
-		StatusCode: http.StatusOK,
-	}, nil
+	return helpers.Response(organisation, http.StatusOK, nil)
 }
 
 var orgStore store.OrganisationStore
@@ -77,5 +70,26 @@ func main() {
 	}
 
 	log.Println("Running lambda...")
-	lambda.Start(Handler)
+	lambda.Start(Router())
+}
+
+// Router routes restful endpoints to the correct method
+// GET without an ID in the path parameters, calls the List method,
+// GET with an ID calls the Get method,
+// POST calls the Store method.
+func Router() func(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	return func(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+		switch request.HTTPMethod {
+		case "GET":
+			id := request.QueryStringParameters["id"]
+			if id != "" {
+				return GetHandler(request)
+			}
+			return ListHandler(request)
+		case "POST":
+			return CreateHandler(request)
+		default:
+			return helpers.Response(helpers.GetErrorData(errors.New("method not allowed")), http.StatusMethodNotAllowed, nil)
+		}
+	}
 }
