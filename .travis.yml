@@ -1,0 +1,13 @@
+language: go
+
+go:
+  - tip
+
+script: 
+  - go build github.com/keithballdotnet/aws-serverless/functions/helloWorld
+  - go test -v github.com/keithballdotnet/aws-serverless/functions/helloWorld
+  - go build github.com/keithballdotnet/aws-serverless/functions/organisation
+  - go test -v github.com/keithballdotnet/aws-serverless/functions/organisation
+
+notifications:
+  email: false

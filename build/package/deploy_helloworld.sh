@@ -11,7 +11,7 @@ function echo_g() {
     echo "\n$GREEN$1$PS_CLEAR"
 }
 
-echo_g Running tests...
+echo_g 'Running tests...'
 go test github.com/keithballdotnet/aws-serverless/functions/helloWorld
 
 echo_g Building...
