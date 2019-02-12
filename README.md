@@ -7,10 +7,9 @@ An experiment with aws serverless tech
 
 ### Prerequisites
 
-[Docker](https://www.docker.com/products/docker-desktop)
-[AWS Cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-[Install the AWS SAM cli.](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install-mac.html)
-
+[Docker](https://www.docker.com/products/docker-desktop)<br>
+[AWS Cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)<br>
+[AWS SAM cli](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install-mac.html)
 
 ```bash
 brew update
