@@ -5,7 +5,11 @@ An experiment with aws serverless tech
 
 ## AWS Serverless Application Model 
 
-[Install the AWS SAM cli.](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install-mac.html)  (Ensure you already have the aws cli installed)
+### Prerequisites
+
+[Docker](https://www.docker.com/products/docker-desktop)
+[AWS Cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+[Install the AWS SAM cli.](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install-mac.html)
 
 
 ```bash
@@ -15,11 +19,11 @@ brew tap aws/tap
 brew install aws-sam-cli
 ```
 
-Make sure you have docker installed too.
+### Run the hello world example
 
 Test, build and then run the function locally
 ```bash
-./src/github.com/keithballdotnet/aws-serverless/build/package/helloWorldLocalTest.s
+./src/github.com/keithballdotnet/aws-serverless/build/package/helloWorldLocalTest.sh
 ```
 
 You can test the function using a curl command
